@@ -8,12 +8,74 @@ This project is a Dockerized Node/Express service that accepts a JSON representa
 
 ## Run locally
 
-1. Build and run with Docker Compose:
+1. Run locally without Docker
+
+If you want to run the service directly on your machine (no Docker), follow these steps.
+
+Debian/Ubuntu / WSL:
 
 ```bash
-# Build and run
-docker compose build
-docker compose up
+# Install system packages
+sudo apt update
+sudo apt install -y build-essential python3 libsqlite3-dev redis-server curl jq
+
+# Start Redis (the service uses Redis for the job queue)
+sudo systemctl enable --now redis
+
+# Clone the repo (if not already)
+cd /path/to/repo
+# Install node deps (requires native build tools for better-sqlite3)
+npm install
+
+# Create persistent data dirs (optional, server will create these automatically if missing)
+mkdir -p data/builds data/cache
+
+# Run server
+npm start
+
+# For development with live reload (requires nodemon installed):
+### Environment variables
+npm run dev
+```
+
+macOS with Homebrew:
+
+```bash
+brew install sqlite3 redis curl jq
+brew services start redis
+npm install
+npm start
+```
+
+Example (local development):
+What these commands do:
+```bash
+# copy the .env sample and adjust
+cp .env.sample .env
+# add your admin key if you want
+export ADMIN_KEY=mysecureadminkey
+npm install
+npm start
+```
+- They install system build tools required for `better-sqlite3` and `libsqlite3` headers.
+- Redis is required because the worker uses `bull` with `ioredis` as the broker. Run `redis-server` directly on macOS if you prefer.
+
+2. Run Admin UI locally:
+
+Open http://localhost:3000/admin. The server will generate an admin key on first startup and write it to `data/admin.json`.
+
+3. Create API key and run build test
+
+```bash
+# Get admin key
+cat data/admin.json
+# Create an API key
+ADMIN=$(jq -r .key data/admin.json)
+curl -s -X POST -H "x-admin-key: $ADMIN" http://localhost:3000/admin/api/keys | jq
+# Copy the API key and then run the client test from client/
+cd client
+npm install # optional if not already
+API_KEY=<your_api_key_here> WAIT=true node send_build.js
 ```
 
 2. Send a sample Vite JSON:
@@ -78,3 +140,6 @@ Caching behavior
 - Server is in `server/index.js`.
 - Client sample is in `client/send_build.js` and uses `axios` to download the built zip.
 
+
+## Creator
+- created by @xer0bit

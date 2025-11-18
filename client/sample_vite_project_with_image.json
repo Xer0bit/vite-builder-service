@@ -1,24 +1,48 @@
 {
-  "files": [
-    {
-      "path": "index.html",
-      "content": "<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Vite App with Image</title>\n  </head>\n  <body>\n    <div id=\"app\">Loading...</div>\n    <img src=\"/src/assets/logo.png\" alt=\"logo\">\n    <script type=\"module\" src=\"/src/main.js\"></script>\n  </body>\n</html>"
-    },
-    {
-      "path": "src/main.js",
-      "content": "import './style.css';\nconst el = document.getElementById('app');\nel.innerText = 'Hello Vite with Image!';"
-    },
-    {
-      "path": "src/style.css",
-      "content": "body { font-family: Arial; background: #fff; color: #111; } img { width: 48px; } #app { padding: 1rem; }"
-    },
-    {
-      "path": "src/assets/logo.png",
-      "contentBase64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
-    },
-    {
-      "path": "package.json",
-      "content": "{\n  \"name\": \"vite-app-image\",\n  \"version\": \"0.0.0\",\n  \"scripts\": { \"build\": \"vite build\" },\n  \"devDependencies\": { \"vite\": \"^5.0.0\" }\n}"
-    }
-  ]
+    "files": [
+        {
+            "path": "index.html",
+            "content": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Vite + React + Router - 4 Pages</title>\n    <script type=\"module\" src=\"/src/main.jsx\"></script>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n  </body>\n</html>"
+        },
+        {
+            "path": "package.json",
+            "content": "{\n  \"name\": \"vite-react-router-4pages\",\n  \"private\": true,\n  \"version\": \"0.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\",\n    \"react-router-dom\": \"^6.26.2\"\n  },\n  \"devDependencies\": {\n    \"@vitejs/plugin-react\": \"^4.3.1\",\n    \"vite\": \"^5.4.8\"\n  }\n}"
+        },
+        {
+            "path": "vite.config.js",
+            "content": "import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\n\nexport default defineConfig({\n  plugins: [react()]\n})"
+        },
+        {
+            "path": "src/main.jsx",
+            "content": "import React from 'react'\nimport ReactDOM from 'react-dom/client'\nimport { BrowserRouter } from 'react-router-dom'\nimport App from './App.jsx'\nimport './index.css'\n\nReactDOM.createRoot(document.getElementById('root')).render(\n  <React.StrictMode>\n    <BrowserRouter>\n      <App />\n    </BrowserRouter>\n  </React.StrictMode>\n)"
+        },
+        {
+            "path": "src/index.css",
+            "content": "*,\n*::before,\n*::after { box-sizing: border-box; }\nbody { margin: 0; font-family: system-ui, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }\n#root { height: 100%; }"
+        },
+        {
+            "path": "src/App.jsx",
+            "content": "import { Routes, Route, Link, useLocation } from 'react-router-dom'\nimport Home from './pages/Home.jsx'\nimport About from './pages/About.jsx'\nimport Products from './pages/Products.jsx'\nimport Contact from './pages/Contact.jsx'\nimport './App.css'\n\nfunction Layout() {\n  const { pathname } = useLocation()\n  const isActive = (p) => pathname === p ? 'active' : ''\n\n  return (\n    <>\n      <nav className=\"nav\">\n        <Link to=\"/\" className={isActive('/')}>Home</Link>\n        <Link to=\"/about\" className={isActive('/about')}>About</Link>\n        <Link to=\"/products\" className={isActive('/products')}>Products</Link>\n        <Link to=\"/contact\" className={isActive('/contact')}>Contact</Link>\n      </nav>\n      <main>\n        <Routes>\n          <Route path=\"/\" element={<Home />} />\n          <Route path=\"/about\" element={<About />} />\n          <Route path=\"/products\" element={<Products />} />\n          <Route path=\"/contact\" element={<Contact />} />\n        </Routes>\n      </main>\n    </>\n  )\n}\n\nexport default function App() {\n  return <Layout />\n}"
+        },
+        {
+            "path": "src/App.css",
+            "content": ".nav {\n  background: #161b22;\n  padding: 1.5rem;\n  display: flex;\n  gap: 3rem;\n  justify-content: center;\n  position: sticky;\n  top: 0;\n  z-index: 10;\n}\n.nav a {\n  color: #58a6ff;\n  text-decoration: none;\n  font-size: 1.1rem;\n  font-weight: 500;\n}\n.nav a.active {\n  color: white;\n  border-bottom: 3px solid #58a6ff;\n  padding-bottom: 0.5rem;\n}\nmain {\n  padding: 3rem 1.5rem;\n  max-width: 1200px;\n  margin: 0 auto;\n}\nh1 { color: #58a6ff; }\n.grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n  gap: 2rem;\n  margin-top: 2rem;\n}\n.card {\n  background: #161b22;\n  padding: 1.5rem;\n  border: 1px solid #30363d;\n  border-radius: 8px;\n}"
+        },
+        {
+            "path": "src/pages/Home.jsx",
+            "content": "export default function Home() {\n  return (\n    <div>\n      <h1>Home</h1>\n      <p>Welcome to the complete Vite + React + React Router project.</p>\n      <p>Four fully functional client-side pages with instant navigation.</p>\n    </div>\n  )\n}"
+        },
+        {
+            "path": "src/pages/About.jsx",
+            "content": "export default function About() {\n  return (\n    <div>\n      <h1>About</h1>\n      <p>Minimal multi-page SPA built with:</p>\n      <ul>\n        <li>React 18</li>\n        <li>React Router v6</li>\n        <li>Vite 5</li>\n        <li>No extra build tools</li>\n      </ul>\n    </div>\n  )\n}"
+        },
+        {
+            "path": "src/pages/Products.jsx",
+            "content": "const products = [\n  { id: 1, name: \"Alpha\", price: 199 },\n  { id: 2, name: \"Beta\", price: 299 },\n  { id: 3, name: \"Gamma\", price: 399 }\n]\n\nexport default function Products() {\n  return (\n    <div>\n      <h1>Products</h1>\n      <div className=\"grid\">\n        {products.map(p => (\n          <div key={p.id} className=\"card\">\n            <h2>{p.name}</h2>\n            <p>${p.price}</p>\n          </div>\n        ))}\n      </div>\n    </div>\n  )\n}"
+        },
+        {
+            "path": "src/pages/Contact.jsx",
+            "content": "export default function Contact() {\n  return (\n    <div>\n      <h1>Contact</h1>\n      <form style={{ maxWidth: '480px', display: 'grid', gap: '1rem' }}>\n        <input type=\"text\" placeholder=\"Name\" required />\n        <input type=\"email\" placeholder=\"Email\" required />\n        <textarea placeholder=\"Message\" rows={6} required></textarea>\n        <button type=\"submit\" style={{ background: '#238636', color: 'white', padding: '0.8rem', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>\n          Send Message\n        </button>\n      </form>\n    </div>\n  )\n}"
+        }
+    ]
 }

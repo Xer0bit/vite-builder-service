@@ -11,6 +11,15 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - ADMIN_KEY=${ADMIN_KEY}
+      - DATA_DIR=${DATA_DIR:-/app/data}
+      - BUILDS_DIR=${BUILDS_DIR:-/app/data/builds}
+      - CACHE_DIR=${CACHE_DIR:-/app/data/cache}
+      - DB_PATH=${DB_PATH:-/app/data/db.sqlite}
+      - PORT=${PORT:-3000}
+      - CACHE_MAX_ENTRIES=${CACHE_MAX_ENTRIES:-5}
+      - CACHE_MAX_BYTES=${CACHE_MAX_BYTES:-2147483648}
+      - BUILD_TIMEOUT_MS=${BUILD_TIMEOUT_MS:-120000}
+      - INSTALL_TIMEOUT_MS=${INSTALL_TIMEOUT_MS:-120000}
     # volumes: # Uncomment to bind local code during development
     #  - ./:/app
   redis:

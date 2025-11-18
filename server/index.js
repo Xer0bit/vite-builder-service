@@ -7,17 +7,21 @@ const bodyParser = require('body-parser');
 const archiver = require('archiver');
 const Queue = require('bull');
 const IORedis = require('ioredis');
+const Database = require('better-sqlite3');
 const tmp = require('tmp');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
+const config = require('./config');
+// Load local .env if present (local dev)
+try { require('dotenv').config(); } catch (e) {}
 const app = express();
 app.use(bodyParser.json({ limit: '200mb' }));
 
-// Data and cache directories (persistent in container / project)
-const DATA_DIR = path.join(process.cwd(), 'data');
-const BUILDS_DIR = path.join(DATA_DIR, 'builds');
-const CACHE_DIR = path.join(DATA_DIR, 'cache');
+// Data and cache directories (persistent in container / project) - overridable by envs
+const DATA_DIR = config.DATA_DIR || path.join(process.cwd(), 'data');
+const BUILDS_DIR = config.BUILDS_DIR || path.join(DATA_DIR, 'builds');
+const CACHE_DIR = config.CACHE_DIR || path.join(DATA_DIR, 'cache');
 const BUILDS_META_PATH = path.join(DATA_DIR, 'builds.json');
 const CACHE_META_PATH = path.join(DATA_DIR, 'cache.json');
 
@@ -49,6 +53,38 @@ try {
     cacheMeta = JSON.parse(fs.readFileSync(CACHE_META_PATH, 'utf8')) || [];
   }
 } catch (e) { cacheMeta = []; }
+
+// Initialize a SQLite database for API keys
+const DB_PATH = path.join(DATA_DIR, 'db.sqlite');
+let db;
+try {
+  db = new Database(DB_PATH);
+  db.pragma('journal_mode = WAL');
+  db.prepare(`CREATE TABLE IF NOT EXISTS api_keys (
+    id TEXT PRIMARY KEY,
+    key TEXT UNIQUE,
+    meta TEXT,
+    createdAt TEXT,
+    revoked INTEGER DEFAULT 0
+  )`).run();
+  // Migrate from existing data/api_keys.json if present and DB empty
+  const countRow = db.prepare('SELECT COUNT(1) AS c FROM api_keys').get();
+  if (countRow && countRow.c === 0) {
+    const apiFile = path.join(DATA_DIR, 'api_keys.json');
+    if (fs.existsSync(apiFile)) {
+      try {
+        const keys = JSON.parse(fs.readFileSync(apiFile, 'utf8')) || [];
+        const insert = db.prepare('INSERT OR IGNORE INTO api_keys (id, key, meta, createdAt, revoked) VALUES (?, ?, ?, ?, ?)');
+        for (const k of keys) {
+          const metaStr = k.meta ? JSON.stringify(k.meta) : JSON.stringify({ createdAt: k.meta && k.meta.createdAt ? k.meta.createdAt : new Date().toISOString() });
+          insert.run(k.id || crypto.randomBytes(8).toString('hex'), k.key, metaStr, (k.meta && k.meta.createdAt) || new Date().toISOString(), 0);
+        }
+      } catch (e) { /* ignore migration errors */ }
+    }
+  }
+} catch (e) {
+  console.warn('Failed to init DB', e.message);
+}
 
 function saveBuildsMeta() {
   fs.writeFileSync(BUILDS_META_PATH, JSON.stringify(buildsMeta, null, 2), 'utf8');
@@ -174,7 +210,7 @@ function writeFilesToDir(baseDir, files) {
     }
   }
 }
-
+    // REDIS_URL will be defined below using env config
 // Utility: run a shell command in given cwd
 function runCommand(cmd, args, cwd, timeoutMs = 60_000, env = {}) {
   return new Promise((resolve, reject) => {
@@ -188,19 +224,15 @@ function runCommand(cmd, args, cwd, timeoutMs = 60_000, env = {}) {
       child.kill('SIGKILL');
       reject(new Error('Command timed out'));
     }, timeoutMs);
-
     child.stdout.on('data', data => { stdout += data.toString(); });
     child.stderr.on('data', data => { stderr += data.toString(); });
     child.on('close', code => {
       clearTimeout(timeout);
-      if (code === 0) {
-        resolve({ stdout, stderr });
-      } else {
-        const err = new Error(`Command ${cmd} ${args.join(' ')} exited with code ${code}`);
-        err.code = code;
-        err.stdout = stdout;
-        err.stderr = stderr;
-        reject(err);
+      if (code === 0) resolve({ stdout, stderr });
+      else {
+        const e = new Error('exit ' + code);
+        e.code = code; e.stdout = stdout; e.stderr = stderr;
+        reject(e);
       }
     });
   });
@@ -211,14 +243,11 @@ function runCommand(cmd, args, cwd, timeoutMs = 60_000, env = {}) {
 function requireApiKey(req, res, next) {
   const key = req.headers['x-api-key'] || req.query.apiKey;
   if (!key) return res.status(401).json({ error: 'Missing API key' });
-  // validate against stored api_keys
-  const apiKeysPath = path.join(DATA_DIR, 'api_keys.json');
-  let keys = [];
-  if (fs.existsSync(apiKeysPath)) {
-    keys = JSON.parse(fs.readFileSync(apiKeysPath, 'utf8')) || [];
-  }
-  const ok = keys.find(k => k.key === key);
-  if (!ok) return res.status(403).json({ error: 'Invalid API key' });
+  // validate key in sqlite db
+  try {
+    const row = db.prepare('SELECT id FROM api_keys WHERE key = ? AND revoked = 0').get(key);
+    if (!row) return res.status(403).json({ error: 'Invalid API key' });
+  } catch (e) { return res.status(500).json({ error: 'Error validating API key' }); }
   req.apiKey = key;
   next();
 }
@@ -337,83 +366,6 @@ app.post('/build', requireApiKey, async (req, res) => {
       }
     }
     return; // exit early for async queue
-    if (installDep) {
-      // Prefer npm ci if package-lock.json exists, else npm install
-      const hasLock = fs.existsSync(path.join(projectRoot, 'package-lock.json'));
-      try {
-        let installOut = null;
-        if (hasLock) {
-            installOut = await runCommand('npm', ['ci'], projectRoot, 120000);
-          } else {
-            installOut = await runCommand('npm', ['install'], projectRoot, 120000);
-          }
-        buildMeta.logs += `[install] stdout:\n${installOut.stdout}\n[install] stderr:\n${installOut.stderr}\n`;
-        // Save cache if didn't exist
-        if (!cacheEntry) {
-          try {
-            const nmPath = path.join(projectRoot, 'node_modules');
-            if (fs.existsSync(nmPath)) {
-              addCacheEntry(depsHash, nmPath);
-              buildMeta.logs += '[cache] node_modules cached\n';
-            }
-          } catch (e) { buildMeta.logs += `[cache] caching failed: ${e.message}\n`; }
-        }
-      } catch (e) {
-        console.error('Install failed', e.stderr || e.message);
-        return res.status(500).json({ error: 'Dependency installation failed', detail: e.stderr || e.message });
-      }
-    }
-
-    // Run build
-    buildMeta.status = 'building';
-    saveBuildsMeta();
-    try {
-      const [cmd, ...args] = buildCommand.split(' ');
-      const buildOut = await runCommand(cmd, args, projectRoot, 120000);
-      buildMeta.logs += `[build] stdout:\n${buildOut.stdout}\n[build] stderr:\n${buildOut.stderr}\n`;
-    } catch (e) {
-      console.error('Build failed', e.stderr || e.message);
-      buildMeta.status = 'failed';
-      buildMeta.logs += `[build] error: ${e.stderr || e.message}\n`;
-      saveBuildsMeta();
-      return res.status(500).json({ error: 'Build failed', detail: e.stderr || e.message });
-    }
-    
-
-    // Ensure dist exists
-    const distPath = path.join(projectRoot, 'dist');
-    if (!fs.existsSync(distPath)) {
-      return res.status(500).json({ error: 'Build did not produce dist folder' });
-    }
-
-    // Package dist into zip, store on disk and stream back
-    const buildZipPath = path.join(BUILDS_DIR, `${buildId}.zip`);
-    try {
-      const out = fs.createWriteStream(buildZipPath);
-      const archive = archiver('zip', { zlib: { level: 9 } });
-      archive.directory(distPath, false);
-      archive.on('error', err => {
-        console.error('Archive error', err);
-      });
-      archive.pipe(out);
-      await new Promise((resolve, reject) => {
-        out.on('close', resolve);
-        out.on('error', reject);
-        archive.finalize();
-      });
-      buildMeta.status = 'completed';
-      buildMeta.artifact = `/builds/${buildId}.zip`;
-      buildMeta.completedAt = new Date().toISOString();
-      saveBuildsMeta();
-      // stream saved zip
-      res.download(buildZipPath, 'build.zip');
-    } catch (e) {
-      console.error('Archive/write failed', e);
-      buildMeta.status = 'failed';
-      buildMeta.logs += `[archive] ${e.message}\n`;
-      saveBuildsMeta();
-      return res.status(500).json({ error: 'Archiving failed', detail: e.message });
-    }
 
     // Cleanup is left to OS or manual; tmp will clean up on process exit.
   } catch (err) {
@@ -434,13 +386,13 @@ app.get('/version', (req, res) => {
 // Admin endpoints
 // Admin key middleware
 function requireAdminKey(req, res, next) {
-  const key = req.headers['x-admin-key'] || req.query.adminKey || process.env.ADMIN_KEY;
+  const key = req.headers['x-admin-key'] || req.query.adminKey || config.ADMIN_KEY;
   if (!key) return res.status(401).json({ error: 'Missing admin key' });
   // validate against stored adminKey (env or data file)
   const adminFile = path.join(DATA_DIR, 'admin.json');
   let adminDef = null;
   if (fs.existsSync(adminFile)) adminDef = JSON.parse(fs.readFileSync(adminFile, 'utf8')) || null;
-  const configured = process.env.ADMIN_KEY || (adminDef && adminDef.key);
+  const configured = config.ADMIN_KEY || (adminDef && adminDef.key);
   if (!configured) return res.status(403).json({ error: 'Admin key not configured' });
   if (key !== configured) return res.status(403).json({ error: 'Invalid admin key' });
   next();
@@ -457,11 +409,11 @@ app.get('/admin/builds/:id', requireAdminKey, (req, res) => {
 // SSE endpoint for per-build log streaming
 app.get('/admin/builds/:id/stream', (req, res) => {
   const id = req.params.id;
-  const key = req.headers['x-admin-key'] || req.query.adminKey || process.env.ADMIN_KEY;
+  const key = req.headers['x-admin-key'] || req.query.adminKey || config.ADMIN_KEY;
   if (!key) return res.status(401).json({ error: 'Missing admin key' });
   const adminFile = path.join(DATA_DIR, 'admin.json');
   let adminDef = null; if (fs.existsSync(adminFile)) adminDef = JSON.parse(fs.readFileSync(adminFile, 'utf8')) || null;
-  const configured = process.env.ADMIN_KEY || (adminDef && adminDef.key);
+  const configured = config.ADMIN_KEY || (adminDef && adminDef.key);
   if (!configured || key !== configured) return res.status(403).json({ error: 'Invalid admin key' });
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -476,10 +428,21 @@ app.get('/admin/builds/:id/stream', (req, res) => {
     sseClients.set(id, arr.filter(r => r !== res));
   });
 });
-app.get('/builds/:id.zip', (req, res) => {
+app.get('/builds/:id.zip', requireApiKey, (req, res) => {
   const p = path.join(BUILDS_DIR, `${req.params.id}.zip`);
-  if (!fs.existsSync(p)) return res.status(404).send('Not found');
-  res.download(p);
+  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Not found' });
+  const zipBuffer = fs.readFileSync(p);
+  const base64 = zipBuffer.toString('base64');
+  fs.unlinkSync(p); // remove the file after returning
+  res.json({ zip: base64 });
+});
+
+// User API to get build logs
+app.get('/api/builds/:id/logs', requireApiKey, (req, res) => {
+  const logPath = path.join(DATA_DIR, 'builds', `${req.params.id}.log`);
+  if (!fs.existsSync(logPath)) return res.status(404).json({ error: 'Logs not found' });
+  const logs = fs.readFileSync(logPath, 'utf8');
+  res.json({ logs });
 });
 app.get('/admin/cache', requireAdminKey, (req, res) => {
   res.json({ cacheMeta, settings: { maxEntries: 5, maxBytes: 2 * 1024 * 1024 * 1024 } });
@@ -509,6 +472,24 @@ app.get('/admin/metrics', requireAdminKey, async (req, res) => {
   const totalCacheBytes = cacheMeta.reduce((s, c) => s + (c.size || 0), 0);
   res.json({ jobCounts, totalBuilds, cacheEntries: cacheMeta.length, totalCacheBytes });
 });
+app.get('/admin/config', requireAdminKey, (req, res) => {
+  try {
+    const cfg = {
+      DATA_DIR,
+      BUILDS_DIR,
+      CACHE_DIR,
+      REDIS_URL,
+      PORT: typeof config.PORT !== 'undefined' ? config.PORT : process.env.PORT || 3000,
+      DB_PATH: config.DB_PATH || path.join(DATA_DIR, 'db.sqlite'),
+      CACHE_MAX_ENTRIES: config.CACHE_MAX_ENTRIES,
+      CACHE_MAX_BYTES: config.CACHE_MAX_BYTES,
+      BUILD_TIMEOUT_MS: config.BUILD_TIMEOUT_MS,
+      INSTALL_TIMEOUT_MS: config.INSTALL_TIMEOUT_MS,
+      ADMIN_KEY_SET: !!config.ADMIN_KEY
+    };
+    res.json(cfg);
+  } catch (e) { res.status(500).json({ error: 'Failed to read config' }); }
+});
 app.post('/admin/cache/remove/:hash', requireAdminKey, (req, res) => {
   removeCacheEntry(req.params.hash);
   res.json({ status: 'ok' });
@@ -516,32 +497,44 @@ app.post('/admin/cache/remove/:hash', requireAdminKey, (req, res) => {
 
 // Admin API keys management
 app.get('/admin/api/keys', requireAdminKey, (req, res) => {
-  const apiFile = path.join(DATA_DIR, 'api_keys.json');
-  const keys = fs.existsSync(apiFile) ? JSON.parse(fs.readFileSync(apiFile, 'utf8')) : [];
-  res.json(keys.map(k => ({ id: k.id, meta: k.meta })));
+  try {
+    const showRevoked = req.query.showRevoked === '1' || req.query.showRevoked === 'true';
+    const rows = db.prepare(`SELECT id, key, meta, createdAt, revoked FROM api_keys ${showRevoked ? '' : 'WHERE revoked = 0'} ORDER BY createdAt DESC`).all();
+    const keys = rows.map(r => ({ id: r.id, meta: r.meta ? JSON.parse(r.meta) : { createdAt: r.createdAt }, key: r.key, revoked: !!r.revoked }));
+    res.json(keys.map(k => ({ id: k.id, meta: k.meta, revoked: k.revoked })));
+  } catch (e) { res.status(500).json({ error: 'Failed to read API keys' }); }
 });
 app.post('/admin/api/keys', requireAdminKey, (req, res) => {
-  const apiFile = path.join(DATA_DIR, 'api_keys.json');
-  const keys = fs.existsSync(apiFile) ? JSON.parse(fs.readFileSync(apiFile, 'utf8')) : [];
-  const newKey = { id: uuidv4(), key: crypto.randomBytes(20).toString('hex'), meta: { createdAt: new Date().toISOString() } };
-  keys.push(newKey);
-  fs.writeFileSync(apiFile, JSON.stringify(keys, null, 2), 'utf8');
-  res.json({ id: newKey.id, key: newKey.key });
+  try {
+    const newId = uuidv4();
+    const newKey = crypto.randomBytes(20).toString('hex');
+    const meta = { createdAt: new Date().toISOString() };
+    db.prepare('INSERT INTO api_keys (id, key, meta, createdAt, revoked) VALUES (?, ?, ?, ?, 0)').run(newId, newKey, JSON.stringify(meta), meta.createdAt);
+    res.json({ id: newId, key: newKey });
+  } catch (e) { res.status(500).json({ error: 'Failed to create API key' }); }
 });
 app.delete('/admin/api/keys/:id', requireAdminKey, (req, res) => {
-  const apiFile = path.join(DATA_DIR, 'api_keys.json');
-  const keys = fs.existsSync(apiFile) ? JSON.parse(fs.readFileSync(apiFile, 'utf8')) : [];
-  const filtered = keys.filter(k => k.id !== req.params.id);
-  fs.writeFileSync(apiFile, JSON.stringify(filtered, null, 2), 'utf8');
-  res.json({ status: 'ok' });
+  try {
+    const r = db.prepare('UPDATE api_keys SET revoked = 1 WHERE id = ?').run(req.params.id);
+    res.json({ status: 'ok', changed: r.changes });
+  } catch (e) { res.status(500).json({ error: 'Failed to revoke API key' }); }
+});
+
+app.get('/admin/api/keys/:id', requireAdminKey, (req, res) => {
+  try {
+    const row = db.prepare('SELECT id, key, meta, createdAt, revoked FROM api_keys WHERE id = ?').get(req.params.id);
+    if (!row) return res.status(404).json({ error: 'Not found' });
+    const response = { id: row.id, key: row.key, meta: row.meta ? JSON.parse(row.meta) : {}, revoked: !!row.revoked, createdAt: row.createdAt };
+    res.json(response);
+  } catch (e) { res.status(500).json({ error: 'Failed to read API key' }); }
 });
 
 // Serve admin static UI
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 // Serve saved builds for direct download
-app.use('/builds', express.static(path.join(DATA_DIR, 'builds')));
+app.use('/builds', express.static(BUILDS_DIR));
 // ----- Redis queue setup
-const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const REDIS_URL = config.REDIS_URL || process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const redisOptions = { lazyConnect: true };
 const redisClient = new IORedis(REDIS_URL, redisOptions);
 // Subscribe to build logs pub/sub
@@ -573,7 +566,7 @@ function sseSend(buildId, event, data) {
 }
 
 // Start HTTP server
-const PORT = process.env.PORT || 3000;
+const PORT = config.PORT || process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Vite JSON build service listening on ${PORT}`);
 });

@@ -8,7 +8,7 @@ RUN apk add --no-cache build-base python3 sqlite-dev
 
 # Copy server package.json and install server dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy server code
 COPY server ./server

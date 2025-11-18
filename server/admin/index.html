@@ -3,40 +3,204 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vite Builder Admin</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 1rem; }
-    .build { border: 1px solid #eee; padding: 0.5rem; margin-bottom: 0.5rem; }
-    pre { background: #f8f8f8; padding: 0.5rem; overflow: auto; }
-    button { margin-left: 0.5rem; }
-  </style>
+  <title>Builder Admin Dashboard</title>
+  <link rel="stylesheet" href="/admin/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-  <h1>Vite Builder Admin</h1>
-  <section>
-    <h2>Builds</h2>
-    <div id="build-list">Loading...</div>
-  </section>
-  <section>
-    <h2>Cache</h2>
-    <div id="cache-list">Loading...</div>
-    <button id="clear-cache">Clear Cache</button>
-    <div>
-      <h3>Cache Settings</h3>
-      <label>Max Entries: <input id="cache-max-entries" type="number" /></label>
-      <label>Max Bytes: <input id="cache-max-bytes" type="number" /></label>
-      <button id="save-cache-settings">Save</button>
+<body class="admin-dashboard">
+  <div class="app-wrapper">
+    <header class="admin-header">
+      <div class="header-top">
+        <div class="header-left">
+          <h1 class="brand-title">
+            <i class="fas fa-cube"></i> Builder Admin
+          </h1>
+        </div>
+        <div class="header-right">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span class="status-text">System Active</span>
+          </div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="#builds" class="nav-link active" data-section="builds">
+          <i class="fas fa-list"></i> Builds
+        </a>
+        <a href="#cache" class="nav-link" data-section="cache">
+          <i class="fas fa-database"></i> Cache
+        </a>
+        <a href="#keys" class="nav-link" data-section="keys">
+          <i class="fas fa-key"></i> API Keys
+        </a>
+        <a href="#metrics" class="nav-link" data-section="metrics">
+          <i class="fas fa-chart-line"></i> Metrics
+        </a>
+        <a href="#config" class="nav-link" data-section="config">
+          <i class="fas fa-cog"></i> Config
+        </a>
+      </nav>
+    </header>
+    <main class="admin-main">
+      <!-- Builds Section -->
+      <section id="builds" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-list-check"></i>
+            <h2>Builds</h2>
+          </div>
+          <div class="section-actions">
+            <button id="test-build" class="btn btn-primary">
+              <i class="fas fa-play"></i> Test Build
+            </button>
+            <button id="refresh-builds" class="btn btn-outline">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div id="build-list" class="builds-container">
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>Loading builds...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cache Section -->
+      <section id="cache" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-database"></i>
+            <h2>Cache Management</h2>
+          </div>
+          <div class="section-actions">
+            <button id="refresh-cache" class="btn btn-outline">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+            <button id="clear-cache" class="btn btn-danger">
+              <i class="fas fa-trash"></i> Clear All
+            </button>
+          </div>
+        </div>
+        
+        <div class="cache-grid">
+          <div class="cache-section">
+            <h3>Cache Entries</h3>
+            <div id="cache-list" class="cache-container">
+              <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Loading cache...</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cache-section">
+            <h3>Cache Settings</h3>
+            <div class="settings-form">
+              <div class="form-group">
+                <label for="cache-max-entries">Max Entries</label>
+                <input id="cache-max-entries" type="number" class="input-field" placeholder="e.g., 5" />
+              </div>
+              <div class="form-group">
+                <label for="cache-max-bytes">Max Size (bytes)</label>
+                <input id="cache-max-bytes" type="number" class="input-field" placeholder="e.g., 2147483648" />
+              </div>
+              <button id="save-cache-settings" class="btn btn-primary btn-block">
+                <i class="fas fa-save"></i> Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- API Keys Section -->
+      <section id="keys" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-key"></i>
+            <h2>API Keys</h2>
+          </div>
+          <div class="section-actions">
+            <div class="search-wrapper">
+              <i class="fas fa-search"></i>
+              <input type="text" id="search-keys" placeholder="Search keys..." class="input-field">
+            </div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="show-revoked">
+              <span>Show Revoked</span>
+            </label>
+            <button id="create-key" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Create Key
+            </button>
+            <button id="refresh-keys" class="btn btn-outline">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div id="api-keys" class="keys-container">
+          <div class="empty-state">
+            <i class="fas fa-key"></i>
+            <p>Loading API keys...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Metrics Section -->
+      <section id="metrics" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-chart-bar"></i>
+            <h2>Metrics</h2>
+          </div>
+          <div class="section-actions">
+            <button id="refresh-metrics" class="btn btn-outline">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="code-block">
+          <pre id="metrics-content">Loading metrics...</pre>
+        </div>
+      </section>
+
+      <!-- Config Section -->
+      <section id="config" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-cog"></i>
+            <h2>Configuration</h2>
+          </div>
+          <div class="section-actions">
+            <button id="refresh-config" class="btn btn-outline">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="code-block">
+          <pre id="config-content">Loading config...</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+  <!-- Modal for logs -->
+  <div id="log-modal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <i class="fas fa-file-alt"></i> Build Logs
+          </h3>
+          <button type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <pre id="modal-logs">Loading logs...</pre>
+        </div>
+      </div>
     </div>
-  </section>
-  <section>
-    <h2>API Keys</h2>
-    <div id="api-keys">Loading...</div>
-    <button id="create-key">Create API Key</button>
-  </section>
-  <section>
-    <h2>Metrics</h2>
-    <pre id="metrics">Loading...</pre>
-  </section>
+  </div>
+
   <script src="/admin/app.js"></script>
 </body>
 </html>

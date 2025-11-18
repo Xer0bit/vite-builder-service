@@ -1,291 +1,80 @@
 [
   {
-    "id": "85d0f0e5-8d2b-48b4-a1c4-08b885681314",
-    "createdAt": "2025-11-18T07:59:33.989Z",
+    "id": "1eba013d-f008-4905-929a-218d82d7692c",
+    "createdAt": "2025-11-18T09:32:33.693Z",
+    "status": "installing",
+    "buildCommand": "npm run build",
+    "installDep": true,
+    "depsHash": "2db07025566b70a6a47d77fda194d32103af40518eb4dd8275444737c0393450",
+    "logs": ""
+  },
+  {
+    "id": "9c9d3bc7-7231-4c9b-b649-6d8c091242b5",
+    "createdAt": "2025-11-18T09:16:02.523Z",
     "status": "completed",
     "buildCommand": "npm run build",
     "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-lxoAgt_y.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BGV2x8c-.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 101ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/85d0f0e5-8d2b-48b4-a1c4-08b885681314.zip",
-    "completedAt": "2025-11-18T07:59:35.792Z"
+    "depsHash": "2db07025566b70a6a47d77fda194d32103af40518eb4dd8275444737c0393450",
+    "logs": "[build] stdout:\n\n> vite-react-router-4pages@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 39 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.41 kB │ gzip:  0.28 kB\ndist/assets/index-Bmx_pe9y.css    0.68 kB │ gzip:  0.42 kB\ndist/assets/index-D7C5fkfd.js   165.73 kB │ gzip: 53.98 kB\n✓ built in 1.21s\n\n[build] stderr:\n\n",
+    "artifact": "/builds/9c9d3bc7-7231-4c9b-b649-6d8c091242b5.zip",
+    "completedAt": "2025-11-18T09:16:08.578Z"
   },
   {
-    "id": "fffca2d0-de3f-406d-a6bf-f1f2f8281800",
-    "createdAt": "2025-11-18T07:59:30.261Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-lxoAgt_y.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BGV2x8c-.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 99ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/fffca2d0-de3f-406d-a6bf-f1f2f8281800.zip",
-    "completedAt": "2025-11-18T07:59:31.982Z"
-  },
-  {
-    "id": "424f0a6b-1f8b-4142-8bf6-d7cb2ea50272",
-    "createdAt": "2025-11-18T07:59:26.478Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-lxoAgt_y.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BGV2x8c-.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 116ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/424f0a6b-1f8b-4142-8bf6-d7cb2ea50272.zip",
-    "completedAt": "2025-11-18T07:59:28.246Z"
-  },
-  {
-    "id": "5769d546-5293-4398-8f52-aac642003a4f",
-    "createdAt": "2025-11-18T07:59:22.798Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-lxoAgt_y.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BGV2x8c-.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 95ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/5769d546-5293-4398-8f52-aac642003a4f.zip",
-    "completedAt": "2025-11-18T07:59:24.471Z"
-  },
-  {
-    "id": "f9f6b2a2-4c61-4e81-8d4a-0736067d464b",
-    "createdAt": "2025-11-18T07:59:18.811Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-lxoAgt_y.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BGV2x8c-.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 101ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/f9f6b2a2-4c61-4e81-8d4a-0736067d464b.zip",
-    "completedAt": "2025-11-18T07:59:20.709Z"
-  },
-  {
-    "id": "17a73cc6-1a0a-4e4f-a79e-4fceef26c46c",
-    "createdAt": "2025-11-18T07:59:08.802Z",
-    "status": "completed",
-    "buildCommand": "yarn build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\nvite v5.4.21 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                0.12 kB │ gzip: 0.12 kB\ndist/assets/index-BumjlF9W.js  0.77 kB │ gzip: 0.44 kB\n✓ built in 83ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/17a73cc6-1a0a-4e4f-a79e-4fceef26c46c.zip",
-    "completedAt": "2025-11-18T07:59:11.354Z"
-  },
-  {
-    "id": "3e72e5c2-e639-4993-b74f-c242bf134dab",
-    "createdAt": "2025-11-18T07:59:03.544Z",
-    "status": "completed",
-    "buildCommand": "yarn build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\nvite v5.4.21 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                0.12 kB │ gzip: 0.12 kB\ndist/assets/index-BumjlF9W.js  0.77 kB │ gzip: 0.44 kB\n✓ built in 91ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/3e72e5c2-e639-4993-b74f-c242bf134dab.zip",
-    "completedAt": "2025-11-18T07:59:06.051Z"
-  },
-  {
-    "id": "f99703bc-37a7-4b53-ac15-a94f056ca8c7",
-    "createdAt": "2025-11-18T07:58:55.825Z",
-    "status": "completed",
-    "buildCommand": "yarn build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\nvite v5.4.21 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                0.12 kB │ gzip: 0.12 kB\ndist/assets/index-BumjlF9W.js  0.77 kB │ gzip: 0.44 kB\n✓ built in 119ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/f99703bc-37a7-4b53-ac15-a94f056ca8c7.zip",
-    "completedAt": "2025-11-18T07:59:02.731Z"
-  },
-  {
-    "id": "35fc656a-5628-46ae-a310-1b7dd366faf8",
-    "createdAt": "2025-11-18T07:58:21.300Z",
-    "status": "completed",
-    "buildCommand": "pnpm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-pnpm-app@0.0.0 build /tmp/worker--1-1OecLYXA4ef1\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                0.12 kB │ gzip: 0.12 kB\ndist/assets/index-CDgIkaZw.js  0.77 kB │ gzip: 0.44 kB\n✓ built in 98ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/35fc656a-5628-46ae-a310-1b7dd366faf8.zip",
-    "completedAt": "2025-11-18T07:58:24.224Z"
-  },
-  {
-    "id": "1e21304a-d099-45a8-b38e-95537629f6c7",
-    "createdAt": "2025-11-18T07:58:16.461Z",
-    "status": "completed",
-    "buildCommand": "pnpm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-pnpm-app@0.0.0 build /tmp/worker--1-9BPCZOgiF4Bm\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                0.12 kB │ gzip: 0.12 kB\ndist/assets/index-CDgIkaZw.js  0.77 kB │ gzip: 0.44 kB\n✓ built in 105ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/1e21304a-d099-45a8-b38e-95537629f6c7.zip",
-    "completedAt": "2025-11-18T07:58:19.383Z"
-  },
-  {
-    "id": "b20e98b0-2b38-41cd-ba9e-081110346ec9",
-    "createdAt": "2025-11-18T07:58:07.923Z",
-    "status": "completed",
-    "buildCommand": "pnpm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-pnpm-app@0.0.0 build /tmp/worker--1-PaZlX1xYWI3n\n> vite build\n\nvite v5.0.0 building for production...\ntransforming...\n✓ 3 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                0.12 kB │ gzip: 0.12 kB\ndist/assets/index-CDgIkaZw.js  0.77 kB │ gzip: 0.44 kB\n✓ built in 124ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/b20e98b0-2b38-41cd-ba9e-081110346ec9.zip",
-    "completedAt": "2025-11-18T07:58:12.610Z"
-  },
-  {
-    "id": "71776b3e-c3d2-46ca-964c-49303d283ecc",
-    "createdAt": "2025-11-18T07:57:23.399Z",
-    "status": "completed",
-    "buildCommand": "vite build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 107ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/71776b3e-c3d2-46ca-964c-49303d283ecc.zip",
-    "completedAt": "2025-11-18T07:57:26.293Z"
-  },
-  {
-    "id": "5306e621-4583-4bc6-98a4-77d2ab6e45cd",
-    "createdAt": "2025-11-18T07:55:06.739Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 140ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/5306e621-4583-4bc6-98a4-77d2ab6e45cd.zip",
-    "completedAt": "2025-11-18T07:55:49.645Z"
-  },
-  {
-    "id": "09d02907-3d22-4fd3-ab63-330368fc6848",
-    "createdAt": "2025-11-18T07:48:59.388Z",
+    "id": "181d730d-bbdc-4af7-833a-008d1880e08d",
+    "createdAt": "2025-11-18T09:13:05.449Z",
     "status": "failed",
     "buildCommand": "npm run build",
     "installDep": true,
     "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] failed sh: vite: not found\n\n"
+    "logs": "[install] failed exit 254\n"
   },
   {
-    "id": "27892946-c2e4-4d0e-8e6d-7fe1b145ed9f",
-    "createdAt": "2025-11-18T07:45:39.604Z",
+    "id": "f18ebaa2-d120-46a7-bad1-ab42012e9359",
+    "createdAt": "2025-11-18T09:11:14.466Z",
     "status": "failed",
     "buildCommand": "npm run build",
     "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] failed sh: vite: not found\n\n"
+    "depsHash": "2db07025566b70a6a47d77fda194d32103af40518eb4dd8275444737c0393450",
+    "logs": "[build] failed x Build failed in 164ms\nerror during build:\n[vite:esbuild] Transform failed with 1 error:\n/tmp/worker--1-dqSKFzjh2g2V/src/pages/Home.jsx:9:6: ERROR: Unexpected closing fragment tag does not match opening \"div\" tag\nfile: /tmp/worker--1-dqSKFzjh2g2V/src/pages/Home.jsx:9:6\n\nUnexpected closing fragment tag does not match opening \"div\" tag\n7  |        <p>Welcome to the Vite + React + React Router demo with 4 distinct pages.</p>\n8  |        <p>Navigation is fully client-side. Use the top menu to switch pages instantly.</p>\n9  |      </>\n   |        ^\n10 |    )\n11 |  }\n\n    at failureErrorWithLog (/tmp/worker--1-dqSKFzjh2g2V/node_modules/esbuild/lib/main.js:1472:15)\n    at /tmp/worker--1-dqSKFzjh2g2V/node_modules/esbuild/lib/main.js:755:50\n    at responseCallbacks.<computed> (/tmp/worker--1-dqSKFzjh2g2V/node_modules/esbuild/lib/main.js:622:9)\n    at handleIncomingPacket (/tmp/worker--1-dqSKFzjh2g2V/node_modules/esbuild/lib/main.js:677:12)\n    at Socket.readFromStdout (/tmp/worker--1-dqSKFzjh2g2V/node_modules/esbuild/lib/main.js:600:7)\n    at Socket.emit (node:events:517:28)\n    at addChunk (node:internal/streams/readable:368:12)\n    at readableAddChunk (node:internal/streams/readable:341:9)\n    at Readable.push (node:internal/streams/readable:278:10)\n    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)\n\n"
   },
   {
-    "id": "f8663a43-4d85-470c-b0cc-571f161eeee6",
-    "createdAt": "2025-11-18T07:44:01.988Z",
+    "id": "93a5f1b0-ecfb-4d13-841f-3226cccab756",
+    "createdAt": "2025-11-18T09:04:49.602Z",
     "status": "failed",
     "buildCommand": "npm run build",
     "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] failed sh: vite: not found\n\n"
+    "depsHash": "2db07025566b70a6a47d77fda194d32103af40518eb4dd8275444737c0393450",
+    "logs": "[build] failed x Build failed in 129ms\nerror during build:\n[vite:esbuild] Transform failed with 1 error:\n/tmp/worker--1-hGq5c0c4QDTS/src/pages/Home.jsx:9:6: ERROR: Unexpected closing fragment tag does not match opening \"div\" tag\nfile: /tmp/worker--1-hGq5c0c4QDTS/src/pages/Home.jsx:9:6\n\nUnexpected closing fragment tag does not match opening \"div\" tag\n7  |        <p>Welcome to the Vite + React + React Router demo with 4 distinct pages.</p>\n8  |        <p>Navigation is fully client-side. Use the top menu to switch pages instantly.</p>\n9  |      </>\n   |        ^\n10 |    )\n11 |  }\n\n    at failureErrorWithLog (/tmp/worker--1-hGq5c0c4QDTS/node_modules/esbuild/lib/main.js:1472:15)\n    at /tmp/worker--1-hGq5c0c4QDTS/node_modules/esbuild/lib/main.js:755:50\n    at responseCallbacks.<computed> (/tmp/worker--1-hGq5c0c4QDTS/node_modules/esbuild/lib/main.js:622:9)\n    at handleIncomingPacket (/tmp/worker--1-hGq5c0c4QDTS/node_modules/esbuild/lib/main.js:677:12)\n    at Socket.readFromStdout (/tmp/worker--1-hGq5c0c4QDTS/node_modules/esbuild/lib/main.js:600:7)\n    at Socket.emit (node:events:517:28)\n    at addChunk (node:internal/streams/readable:368:12)\n    at readableAddChunk (node:internal/streams/readable:341:9)\n    at Readable.push (node:internal/streams/readable:278:10)\n    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)\n\n"
   },
   {
-    "id": "f5029fd7-a8b0-4c68-9b8a-1e1df2550769",
-    "createdAt": "2025-11-18T07:41:29.774Z",
+    "id": "ddc0ce55-a194-44ea-a00c-b68e3dbacec3",
+    "createdAt": "2025-11-18T08:53:53.532Z",
     "status": "failed",
     "buildCommand": "npm run build",
     "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] failed sh: vite: not found\n\n"
+    "depsHash": "2db07025566b70a6a47d77fda194d32103af40518eb4dd8275444737c0393450",
+    "logs": "[build] failed x Build failed in 130ms\nerror during build:\n[vite:esbuild] Transform failed with 1 error:\n/tmp/worker--1-VZ3VAQPWpai6/src/pages/Home.jsx:9:6: ERROR: Unexpected closing fragment tag does not match opening \"div\" tag\nfile: /tmp/worker--1-VZ3VAQPWpai6/src/pages/Home.jsx:9:6\n\nUnexpected closing fragment tag does not match opening \"div\" tag\n7  |        <p>Welcome to the Vite + React + React Router demo with 4 distinct pages.</p>\n8  |        <p>Navigation is fully client-side. Use the top menu to switch pages instantly.</p>\n9  |      </>\n   |        ^\n10 |    )\n11 |  }\n\n    at failureErrorWithLog (/tmp/worker--1-VZ3VAQPWpai6/node_modules/esbuild/lib/main.js:1472:15)\n    at /tmp/worker--1-VZ3VAQPWpai6/node_modules/esbuild/lib/main.js:755:50\n    at responseCallbacks.<computed> (/tmp/worker--1-VZ3VAQPWpai6/node_modules/esbuild/lib/main.js:622:9)\n    at handleIncomingPacket (/tmp/worker--1-VZ3VAQPWpai6/node_modules/esbuild/lib/main.js:677:12)\n    at Socket.readFromStdout (/tmp/worker--1-VZ3VAQPWpai6/node_modules/esbuild/lib/main.js:600:7)\n    at Socket.emit (node:events:517:28)\n    at addChunk (node:internal/streams/readable:368:12)\n    at readableAddChunk (node:internal/streams/readable:341:9)\n    at Readable.push (node:internal/streams/readable:278:10)\n    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)\n\n"
   },
   {
-    "id": "89d05c40-f6e9-4915-b4b8-95000b2e4d04",
-    "createdAt": "2025-11-18T07:23:42.928Z",
+    "id": "159703cb-5519-4673-a44f-929088fd0340",
+    "createdAt": "2025-11-18T08:45:31.671Z",
     "status": "completed",
     "buildCommand": "npm run build",
     "installDep": true,
     "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 80ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/89d05c40-f6e9-4915-b4b8-95000b2e4d04.zip",
-    "completedAt": "2025-11-18T07:23:44.908Z"
+    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 91ms\n\n[build] stderr:\n\n",
+    "artifact": "/builds/159703cb-5519-4673-a44f-929088fd0340.zip",
+    "completedAt": "2025-11-18T08:46:12.606Z"
   },
   {
-    "id": "146e54ce-364c-45be-b470-4fb13c897cff",
-    "createdAt": "2025-11-18T07:23:07.114Z",
+    "id": "2e35ef4e-1e2a-44c6-afe5-b044e265d7bf",
+    "createdAt": "2025-11-18T08:40:04.771Z",
     "status": "completed",
     "buildCommand": "npm run build",
     "installDep": true,
     "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 79ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/146e54ce-364c-45be-b470-4fb13c897cff.zip",
-    "completedAt": "2025-11-18T07:23:09.892Z"
-  },
-  {
-    "id": "edbee9e7-dd1c-48b5-a53a-214483637ed6",
-    "createdAt": "2025-11-18T07:21:22.126Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 95ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/edbee9e7-dd1c-48b5-a53a-214483637ed6.zip",
-    "completedAt": "2025-11-18T07:21:24.276Z"
-  },
-  {
-    "id": "8a2c23f8-932c-413d-b93c-0a1a214ed1c5",
-    "createdAt": "2025-11-18T07:18:59.468Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 97ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/8a2c23f8-932c-413d-b93c-0a1a214ed1c5.zip",
-    "completedAt": "2025-11-18T07:19:01.747Z"
-  },
-  {
-    "id": "70511659-38d2-472e-ba5c-7d179a1b1584",
-    "createdAt": "2025-11-18T07:18:55.366Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 85ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/70511659-38d2-472e-ba5c-7d179a1b1584.zip",
-    "completedAt": "2025-11-18T07:18:57.458Z"
-  },
-  {
-    "id": "0dfd95e8-5dc6-4a63-abda-f57474d780a4",
-    "createdAt": "2025-11-18T07:18:15.545Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 84ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/0dfd95e8-5dc6-4a63-abda-f57474d780a4.zip",
-    "completedAt": "2025-11-18T07:18:17.442Z"
-  },
-  {
-    "id": "a4e8ae4f-4300-41c4-92af-8aac8f38e592",
-    "createdAt": "2025-11-18T07:18:11.498Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 78ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/a4e8ae4f-4300-41c4-92af-8aac8f38e592.zip",
-    "completedAt": "2025-11-18T07:18:13.537Z"
-  },
-  {
-    "id": "5a97ca50-d8a2-4d56-9e22-6b9b73b3a5a1",
-    "createdAt": "2025-11-18T07:17:41.512Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 87ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/5a97ca50-d8a2-4d56-9e22-6b9b73b3a5a1.zip",
-    "completedAt": "2025-11-18T07:17:43.723Z"
-  },
-  {
-    "id": "b1f9f493-7e4f-40cf-94d8-57b3f32ea975",
-    "createdAt": "2025-11-18T07:17:37.259Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 86ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/b1f9f493-7e4f-40cf-94d8-57b3f32ea975.zip",
-    "completedAt": "2025-11-18T07:17:39.499Z"
-  },
-  {
-    "id": "4932300e-49d0-4487-8b1a-60565d4f82fb",
-    "createdAt": "2025-11-18T07:16:50.836Z",
-    "status": "completed",
-    "buildCommand": "npm run build",
-    "installDep": true,
-    "depsHash": "91ffd335105973846de34a3fe8f79e18d36326b74ee849c8a1d5ff5486efae85",
-    "logs": "[build] stdout:\n\n> sample-vite-app@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.39 kB │ gzip: 0.27 kB\ndist/assets/index-B8R4uuG2.css  0.07 kB │ gzip: 0.09 kB\ndist/assets/index-BQCeZcuz.js   0.78 kB │ gzip: 0.44 kB\n✓ built in 101ms\n\n[build] stderr:\n\n",
-    "artifact": "/builds/4932300e-49d0-4487-8b1a-60565d4f82fb.zip",
-    "completedAt": "2025-11-18T07:16:54.489Z"
+    "logs": "[build] stdout:\n\n> vite-app-image@0.0.0 build\n> vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 4 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                 0.54 kB │ gzip: 0.38 kB\ndist/assets/index-CBeCP7MR.css  0.08 kB │ gzip: 0.10 kB\ndist/assets/index-B_ZlVs30.js   0.79 kB │ gzip: 0.45 kB\n✓ built in 106ms\n\n[build] stderr:\n\n",
+    "artifact": "/builds/2e35ef4e-1e2a-44c6-afe5-b044e265d7bf.zip",
+    "completedAt": "2025-11-18T08:40:48.275Z"
   }
 ]

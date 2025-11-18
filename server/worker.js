@@ -8,10 +8,11 @@ const Queue = require('bull');
 const IORedis = require('ioredis');
 const { v4: uuidv4 } = require('uuid');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-const DATA_DIR = path.join(process.cwd(), 'data');
-const BUILDS_DIR = path.join(DATA_DIR, 'builds');
-const CACHE_DIR = path.join(DATA_DIR, 'cache');
+const config = require('./config');
+const REDIS_URL = config.REDIS_URL || process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const DATA_DIR = config.DATA_DIR || path.join(process.cwd(), 'data');
+const BUILDS_DIR = config.BUILDS_DIR || path.join(DATA_DIR, 'builds');
+const CACHE_DIR = config.CACHE_DIR || path.join(DATA_DIR, 'cache');
 
 function runCommand(cmd, args, cwd, timeoutMs=120000, env={}) {
   return new Promise((resolve,reject) => {
@@ -88,20 +89,20 @@ async function processJob(job) {
       const lockPath = path.join(root, 'package-lock.json');
       let installOut;
       if (fs.existsSync(lockPath)) {
-        installOut = await runCommand('npm', ['ci', '--include=dev'], root, 120000, { NODE_ENV: 'development', npm_config_production: 'false' });
+        installOut = await runCommand('npm', ['ci', '--include=dev'], root, config.INSTALL_TIMEOUT_MS, { NODE_ENV: 'development', npm_config_production: 'false' });
       } else {
-        installOut = await runCommand('npm', ['install'], root, 120000, { NODE_ENV: 'development', npm_config_production: 'false' });
+        installOut = await runCommand('npm', ['install'], root, config.INSTALL_TIMEOUT_MS, { NODE_ENV: 'development', npm_config_production: 'false' });
       }
       await appendBuildLog(bmeta.id, `[install] npm stdout:\n${installOut.stdout}\n[install] npm stderr:\n${installOut.stderr}\n`);
       await publishLog(bmeta.id, '[install] npm install done');
     }
     if (pkgManager === 'yarn') {
-      const yarnOut = await runCommand('yarn', ['install'], root, 120000, { NODE_ENV: 'development' });
+      const yarnOut = await runCommand('yarn', ['install'], root, config.INSTALL_TIMEOUT_MS, { NODE_ENV: 'development' });
       await appendBuildLog(bmeta.id, `[install] yarn stdout:\n${yarnOut.stdout}\n[install] yarn stderr:\n${yarnOut.stderr}\n`);
       await publishLog(bmeta.id, '[install] yarn install done');
     }
     if (pkgManager === 'pnpm') {
-      const pnpmOut = await runCommand('pnpm', ['install'], root, 120000, { NODE_ENV: 'development' });
+      const pnpmOut = await runCommand('pnpm', ['install'], root, config.INSTALL_TIMEOUT_MS, { NODE_ENV: 'development' });
       await appendBuildLog(bmeta.id, `[install] pnpm stdout:\n${pnpmOut.stdout}\n[install] pnpm stderr:\n${pnpmOut.stderr}\n`);
       await publishLog(bmeta.id, '[install] pnpm install done');
     }
@@ -119,7 +120,7 @@ async function processJob(job) {
   try {
     const buildCommand = bmeta.buildCommand || 'npm run build';
     const [cmd, ...args] = buildCommand.split(' ');
-    const out = await runCommand(cmd, args, root);
+    const out = await runCommand(cmd, args, root, config.BUILD_TIMEOUT_MS);
     bmeta.logs = (bmeta.logs || '') + `[build] stdout:\n${out.stdout}\n[build] stderr:\n${out.stderr}\n`;
     await appendBuildLog(bmeta.id, `[build] stdout:\n${out.stdout}\n[build] stderr:\n${out.stderr}\n`);
     await publishLog(bmeta.id, `[build] stdout line`);
