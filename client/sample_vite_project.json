@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Sample Vite App</title>\n  </head>\n  <body>\n    <div id=\"app\">Loading...</div>\n    <script type=\"module\" src=\"/src/main.js\"></script>\n  </body>\n</html>"
+    },
+    {
+      "path": "src/main.js",
+      "content": "import './style.css';\nconst el = document.getElementById('app');\nel.innerText = 'Hello Vite build!';"
+    },
+    {
+      "path": "src/style.css",
+      "content": "body { font-family: Arial; background: #f7f7f7; color: #111; } #app { padding: 1rem; }"
+    },
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"sample-vite-app\",\n  \"version\": \"0.0.0\",\n  \"scripts\": { \"build\": \"vite build\" },\n  \"devDependencies\": { \"vite\": \"^5.0.0\" }\n}"
+    }
+  ]
+}

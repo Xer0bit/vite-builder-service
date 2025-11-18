@@ -1,0 +1,14 @@
+{
+  "name": "vite-json-client",
+  "version": "0.0.0",
+  "description": "Client for testing Vite JSON builder service",
+  "main": "send_build.js",
+  "scripts": {
+    "send": "node send_build.js"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "form-data": "^4.0.0",
+    "fs-extra": "^11.1.1"
+  }
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vite Builder Admin</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; }
+    .build { border: 1px solid #eee; padding: 0.5rem; margin-bottom: 0.5rem; }
+    pre { background: #f8f8f8; padding: 0.5rem; overflow: auto; }
+    button { margin-left: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Vite Builder Admin</h1>
+  <section>
+    <h2>Builds</h2>
+    <div id="build-list">Loading...</div>
+  </section>
+  <section>
+    <h2>Cache</h2>
+    <div id="cache-list">Loading...</div>
+    <button id="clear-cache">Clear Cache</button>
+    <div>
+      <h3>Cache Settings</h3>
+      <label>Max Entries: <input id="cache-max-entries" type="number" /></label>
+      <label>Max Bytes: <input id="cache-max-bytes" type="number" /></label>
+      <button id="save-cache-settings">Save</button>
+    </div>
+  </section>
+  <section>
+    <h2>API Keys</h2>
+    <div id="api-keys">Loading...</div>
+    <button id="create-key">Create API Key</button>
+  </section>
+  <section>
+    <h2>Metrics</h2>
+    <pre id="metrics">Loading...</pre>
+  </section>
+  <script src="/admin/app.js"></script>
+</body>
+</html>

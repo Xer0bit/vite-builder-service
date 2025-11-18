@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Vite App with Image</title>\n  </head>\n  <body>\n    <div id=\"app\">Loading...</div>\n    <img src=\"/src/assets/logo.png\" alt=\"logo\">\n    <script type=\"module\" src=\"/src/main.js\"></script>\n  </body>\n</html>"
+    },
+    {
+      "path": "src/main.js",
+      "content": "import './style.css';\nconst el = document.getElementById('app');\nel.innerText = 'Hello Vite with Image!';"
+    },
+    {
+      "path": "src/style.css",
+      "content": "body { font-family: Arial; background: #fff; color: #111; } img { width: 48px; } #app { padding: 1rem; }"
+    },
+    {
+      "path": "src/assets/logo.png",
+      "contentBase64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+    },
+    {
+      "path": "package.json",
+      "content": "{\n  \"name\": \"vite-app-image\",\n  \"version\": \"0.0.0\",\n  \"scripts\": { \"build\": \"vite build\" },\n  \"devDependencies\": { \"vite\": \"^5.0.0\" }\n}"
+    }
+  ]
+}

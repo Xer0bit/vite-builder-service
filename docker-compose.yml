@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  vite-builder:
+    build: .
+    container_name: vite-json-builder
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - ADMIN_KEY=${ADMIN_KEY}
+    # volumes: # Uncomment to bind local code during development
+    #  - ./:/app
+  redis:
+    image: redis:7.0-alpine
+    container_name: vite-json-redis
+    restart: unless-stopped
