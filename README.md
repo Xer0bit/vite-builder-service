@@ -1,145 +1,444 @@
-# Vite JSON Builder Service
+# Server-Side Vite Builder
 
-This project is a Dockerized Node/Express service that accepts a JSON representation of a Vite project (files with paths and contents) and returns the built `dist` output (HTML/CSS/JS) as a zip file.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://www.docker.com/)
 
-## How it works
-- POST /build with JSON payload `{ files: [ { "path": "index.html", "content": "..." }, ... ] }`.
-- The server writes files into a temporary directory, installs dependencies (unless requested not to), runs `npm run build`, and streams back the zip of the `dist` folder.
+A powerful open-source server-side build service for Vite applications. Submit your project files as JSON, and get back a production-ready build (HTML, CSS, JS) as a ZIP file. Perfect for creating live previews of Vite apps without local setup, similar to tools used by [Lovable](https://lovable.dev), [0dev](https://0dev.app), and other no-code/low-code platforms.
 
-## Run locally
+## 🚀 Features
 
-1. Run locally without Docker
+- **Server-Side Building**: Build Vite projects remotely without installing dependencies locally
+- **JSON API**: Submit project files as JSON payload with paths and contents
+- **Dependency Caching**: Intelligent caching of `node_modules` to speed up builds
+- **Queue System**: Asynchronous job processing with Redis-backed queue
+- **Admin Interface**: Web UI for managing builds, cache, and API keys
+- **API Key Management**: Secure authentication with revocable API keys
+- **Docker Ready**: Easy deployment with Docker Compose
+- **Extensible**: Support for custom build commands and configurations
+- **Real-time Logs**: Live streaming of build logs via Server-Sent Events
 
-If you want to run the service directly on your machine (no Docker), follow these steps.
+## 📋 Table of Contents
 
-Debian/Ubuntu / WSL:
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Admin Interface](#admin-interface)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+
+## 🚀 Quick Start
+
+### Using Docker (Recommended)
 
 ```bash
-# Install system packages
-sudo apt update
-sudo apt install -y build-essential python3 libsqlite3-dev redis-server curl jq
+# Clone the repository
+git clone https://github.com/Xer0bit/vite-builder-service.git
+cd vite-builder-service
 
-# Start Redis (the service uses Redis for the job queue)
+# Start the service
+docker compose up -d
+
+# Access admin interface
+open http://localhost:3000/admin
+```
+
+### Manual Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Start Redis (required for queue)
+redis-server &
+
+# Start the service
+npm start
+
+# Access admin interface
+open http://localhost:3000/admin
+```
+
+## 📦 Installation
+
+### Prerequisites
+
+- Node.js 18+
+- Redis (for job queue)
+- SQLite3 development headers (for better-sqlite3)
+
+### With Docker
+
+```bash
+# Clone and start
+git clone https://github.com/Xer0bit/vite-builder-service.git
+cd vite-builder-service
+docker compose up -d
+```
+
+### Without Docker
+
+#### Linux (Ubuntu/Debian)
+
+```bash
+# Install system dependencies
+sudo apt update
+sudo apt install -y build-essential python3 libsqlite3-dev redis-server
+
+# Start Redis
 sudo systemctl enable --now redis
 
-# Clone the repo (if not already)
-cd /path/to/repo
-# Install node deps (requires native build tools for better-sqlite3)
+# Install Node.js dependencies
 npm install
 
-# Create persistent data dirs (optional, server will create these automatically if missing)
-mkdir -p data/builds data/cache
-
-# Run server
+# Start the service
 npm start
-
-# For development with live reload (requires nodemon installed):
-### Environment variables
-npm run dev
 ```
 
-macOS with Homebrew:
+#### macOS
 
 ```bash
+# Install dependencies with Homebrew
 brew install sqlite3 redis curl jq
 brew services start redis
+
+# Install Node.js dependencies
 npm install
+
+# Start the service
 npm start
 ```
 
-Example (local development):
-What these commands do:
+#### Windows
+
 ```bash
-# copy the .env sample and adjust
-cp .env.sample .env
-# add your admin key if you want
-export ADMIN_KEY=mysecureadminkey
+# Install Redis (via Chocolatey or download)
+choco install redis-64
+redis-server
+
+# Install Node.js dependencies
 npm install
+
+# Start the service
 npm start
 ```
-- They install system build tools required for `better-sqlite3` and `libsqlite3` headers.
-- Redis is required because the worker uses `bull` with `ioredis` as the broker. Run `redis-server` directly on macOS if you prefer.
 
-2. Run Admin UI locally:
+## 💡 Usage
 
-Open http://localhost:3000/admin. The server will generate an admin key on first startup and write it to `data/admin.json`.
+### Basic API Usage
 
-3. Create API key and run build test
+Send a POST request to `/build` with your project files:
 
 ```bash
-# Get admin key
-cat data/admin.json
-# Create an API key
-ADMIN=$(jq -r .key data/admin.json)
-curl -s -X POST -H "x-admin-key: $ADMIN" http://localhost:3000/admin/api/keys | jq
-# Copy the API key and then run the client test from client/
-cd client
-npm install # optional if not already
-API_KEY=<your_api_key_here> WAIT=true node send_build.js
+curl -X POST http://localhost:3000/build \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\"name\":\"my-app\",\"scripts\":{\"build\":\"vite build\"}}"
+      },
+      {
+        "path": "index.html",
+        "content": "<!DOCTYPE html><html><body><h1>Hello Vite!</h1></body></html>"
+      }
+    ]
+  }'
 ```
 
-2. Send a sample Vite JSON:
+### Using the Sample Client
 
 ```bash
+# Navigate to client directory
 cd client
+
+# Install dependencies
 npm install
-npm run send
+
+# Send a sample build
+API_KEY=your_api_key_here npm run send
 ```
 
-`client/send_build.js` will POST `client/sample_vite_project.json` to `http://localhost:3000/build` and save `client/build.zip`.
+### JavaScript Example
 
-## API
-  - POST /build
-  - Body: JSON with `{ files: [ { path: string, content: string } ], installDependencies?: boolean }
-    - Additional optional fields:
-      - `buildCommand` (string): custom build command to run (default `npm run build`)
-      - Files can include `contentBase64` (string) for binary files instead of `content`.
-  - Response: Zip file (application/zip) of `dist` folder
+```javascript
+const response = await fetch('http://localhost:3000/build', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': 'your-api-key'
+  },
+  body: JSON.stringify({
+    files: [
+      {
+        path: 'package.json',
+        content: JSON.stringify({
+          name: 'my-vite-app',
+          scripts: { build: 'vite build' },
+          devDependencies: { vite: '^5.0.0' }
+        })
+      },
+      {
+        path: 'index.html',
+        content: '<!DOCTYPE html><html><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>'
+      },
+      {
+        path: 'src/main.js',
+        content: 'document.getElementById("app").innerText = "Hello from server-side build!";'
+      }
+    ]
+  })
+});
 
-  Behavior changes
-  - `/build` now enqueues a build job into a Redis-backed queue and returns 202 with an ID by default.
-  - To wait for the build to finish and get the artifact directly, set `waitForCompletion: true` in the payload or use the `WAIT=true` env var in the sample client.
-  - You must include an `x-api-key` header with a valid API key created by admin to call the build endpoint.
+const buildData = await response.json();
+console.log('Build ID:', buildData.id);
+console.log('Status URL:', buildData.statusUrl);
+```
 
-## Admin
-The service exposes a small admin UI at `/admin` that lists recent builds, allows you to inspect logs, download artifacts and manage the dependency cache.
+## 📚 API Reference
 
-API endpoints for admin:
-- GET `/admin/builds` — lists builds metadata
-- GET `/admin/builds/:id` — build metadata and logs
-- GET `/builds/:id.zip` — download build artifact
-- GET `/admin/cache` — list cache entries
-- POST `/admin/cache/clear` — clear the dependency cache
-- POST `/admin/cache/remove/:hash` — remove a specific cache entry
-- POST `/admin/cache/settings` — set `maxEntries` and `maxBytes` for cache control
+### Authentication
 
-Visit http://localhost:3000/admin to view the admin UI once the service is running.
+All build endpoints require authentication via API key:
 
-Security and API Keys
-- Admin key: set environment variable `ADMIN_KEY` when starting the service, or the server will create one in `data/admin.json` at startup. The admin key is used to protect admin endpoints and the admin UI.
-- API keys: Admins can create API keys via `POST /admin/api/keys` and provide those `x-api-key` headers to clients (or include in calls via `?apiKey=`).
- - API keys: Admins can create API keys via `POST /admin/api/keys` and provide those `x-api-key` headers to clients (or include in calls via `?apiKey=`). The client `client/send_build.js` supports passing API key via `API_KEY` environment variable.
+- Header: `x-api-key: YOUR_API_KEY`
+- Query parameter: `?apiKey=YOUR_API_KEY`
 
-Caching behavior
-- The service computes a hash for dependencies (using package-lock.json if present, or dependencies+devDependencies from package.json).
-- If a cache entry for that hash exists, the server will copy the cached `node_modules` into the build project to avoid network installs.
-- If no cache is found after a build completes, the server caches the `node_modules` for reuse.
-- The cache is kept limited (default 5 entries, 2GB total) and evicts least-recently-used entries.
+API keys are managed through the admin interface.
 
-## Notes
-- The server will try to use `package.json` provided in your files. If none is provided, a fallback `package.json` will be created with Vite as a dev dependency.
-- `installDependencies` (default true) controls whether the server runs `npm install/ci`. Set to false if you provide a `node_modules` bundle or pre-built `dist`.
-- This is intended for secure/test environments only; building arbitrary code can be a security risk.
+### Endpoints
 
-## Implementation Caveats
-- Timeouts and resource bounds are simple, not production-grade.
-- You may want to run the service in a sandboxed environment for security.
+#### POST /build
 
-## Development
+Submit a new build job.
 
-- Server is in `server/index.js`.
-- Client sample is in `client/send_build.js` and uses `axios` to download the built zip.
+**Request Body:**
+```json
+{
+  "files": [
+    {
+      "path": "string (required)",
+      "content": "string (optional)",
+      "contentBase64": "string (optional)"
+    }
+  ],
+  "installDependencies": true,
+  "buildCommand": "npm run build",
+  "waitForCompletion": false
+}
+```
 
+**Response (202 Accepted):**
+```json
+{
+  "id": "uuid",
+  "status": "queued",
+  "statusUrl": "/api/builds/{id}/status",
+  "logsUrl": "/api/builds/{id}/logs",
+  "message": "Build queued successfully"
+}
+```
 
-## Creator
-- created by @xer0bit
+#### GET /api/builds/:id/status
+
+Get build status and metadata.
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "status": "completed|failed|building|installing|queued",
+  "createdAt": "2025-11-18T10:00:00.000Z",
+  "completedAt": "2025-11-18T10:05:00.000Z",
+  "logs": "Build output...",
+  "artifact": "/builds/{id}.zip",
+  "buildCommand": "npm run build"
+}
+```
+
+#### GET /api/builds/:id/logs
+
+Get build logs.
+
+**Response:**
+```json
+{
+  "logs": "Detailed build logs...",
+  "status": "completed"
+}
+```
+
+#### GET /api/builds/:id/download
+
+Download the built artifact (ZIP file).
+
+**Response:** Binary ZIP file
+
+#### GET /api/builds
+
+List builds (paginated).
+
+**Query Parameters:**
+- `limit`: Number of builds to return (default: 10, max: 100)
+- `offset`: Offset for pagination (default: 0)
+
+**Response:**
+```json
+{
+  "builds": [
+    {
+      "id": "uuid",
+      "status": "completed",
+      "createdAt": "2025-11-18T10:00:00.000Z",
+      "completedAt": "2025-11-18T10:05:00.000Z",
+      "artifact": "/builds/{id}.zip"
+    }
+  ],
+  "total": 25,
+  "limit": 10,
+  "offset": 0
+}
+```
+
+#### GET /api/docs
+
+Get API documentation.
+
+## 🛠️ Admin Interface
+
+Access the admin interface at `http://localhost:3000/admin`.
+
+### Features
+
+- **Build Management**: View all builds, their status, and logs
+- **Cache Management**: Monitor and manage dependency cache
+- **API Key Management**: Create, revoke, and manage API keys
+- **Metrics Dashboard**: View system metrics and job queue status
+- **Configuration**: View server configuration and settings
+
+### Admin Authentication
+
+The admin interface requires an admin key, which is:
+1. Set via `ADMIN_KEY` environment variable
+2. Auto-generated on first startup and saved to `data/admin.json`
+
+### Admin API Endpoints
+
+All admin endpoints require `x-admin-key` header.
+
+- `GET /admin/builds` - List all builds
+- `GET /admin/builds/:id` - Get build details and logs
+- `GET /admin/cache` - View cache status
+- `POST /admin/cache/clear` - Clear entire cache
+- `POST /admin/cache/settings` - Update cache settings
+- `GET /admin/metrics` - Get system metrics
+- `GET /admin/config` - View server configuration
+- `GET /admin/api/keys` - List API keys
+- `POST /admin/api/keys` - Create new API key
+- `DELETE /admin/api/keys/:id` - Revoke API key
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+- `PORT`: Server port (default: 3000)
+- `ADMIN_KEY`: Admin authentication key
+- `REDIS_URL`: Redis connection URL (default: redis://127.0.0.1:6379)
+- `DATA_DIR`: Directory for persistent data (default: ./data)
+- `BUILDS_DIR`: Directory for build artifacts (default: ./data/builds)
+- `CACHE_DIR`: Directory for dependency cache (default: ./data/cache)
+- `BUILD_TIMEOUT_MS`: Build timeout in milliseconds (default: 300000)
+- `INSTALL_TIMEOUT_MS`: Install timeout in milliseconds (default: 120000)
+
+### Cache Configuration
+
+Cache settings can be modified via admin interface or by editing `data/cache_config.json`:
+
+```json
+{
+  "maxEntries": 5,
+  "maxBytes": 2147483648
+}
+```
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+├── server/
+│   ├── index.js          # Main server file
+│   ├── config.js         # Configuration
+│   ├── worker.js         # Build worker
+│   └── admin/            # Admin UI files
+├── client/               # Sample client
+├── data/                 # Persistent data (builds, cache, keys)
+├── docker-compose.yml    # Docker setup
+├── Dockerfile            # Docker image
+└── package.json
+```
+
+### Development Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start Redis
+redis-server
+
+# Start development server with auto-reload
+npm run dev
+
+# Run tests
+npm test
+```
+
+### Adding New Features
+
+1. Server endpoints go in `server/index.js`
+2. Admin UI components in `server/admin/`
+3. Client examples in `client/`
+4. Update API documentation in `/api/docs` endpoint
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes and add tests
+4. Run the linter: `npm run lint`
+5. Submit a pull request
+
+### Guidelines
+
+- Follow existing code style
+- Add tests for new features
+- Update documentation
+- Ensure Docker builds work
+- Test with both Docker and local setups
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Express.js](https://expressjs.com/)
+- Job queue powered by [Bull](https://github.com/OptimalBits/bull) and [Redis](https://redis.io/)
+- Database: [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)
+- Inspired by modern no-code platforms like [Lovable](https://lovable.dev) and [0dev](https://0dev.app)
+
+## 📞 Support
+
+- Issues: [GitHub Issues](https://github.com/Xer0bit/server-side-vite-builder/issues)
+- Discussions: [GitHub Discussions](https://github.com/Xer0bit/server-side-vite-builder/discussions)
+
+---
+
+**Created by [@xer0bit](https://github.com/Xer0bit)**

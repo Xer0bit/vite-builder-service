@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Builder Admin Dashboard</title>
+  <title>Ecom Builder Admin Dashboard</title>
   <link rel="stylesheet" href="/admin/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
       <div class="header-top">
         <div class="header-left">
           <h1 class="brand-title">
-            <i class="fas fa-cube"></i> Builder Admin
+            <i class="fas fa-cube"></i> ECom Builder Admin
           </h1>
         </div>
         <div class="header-right">
@@ -38,6 +38,12 @@
         </a>
         <a href="#config" class="nav-link" data-section="config">
           <i class="fas fa-cog"></i> Config
+        </a>
+        <a href="#docs" class="nav-link" data-section="docs">
+          <i class="fas fa-book"></i> API Docs
+        </a>
+        <a href="#tester" class="nav-link" data-section="tester">
+          <i class="fas fa-flask"></i> Tester
         </a>
       </nav>
     </header>
@@ -178,6 +184,68 @@
         </div>
         <div class="code-block">
           <pre id="config-content">Loading config...</pre>
+        </div>
+      </section>
+
+      <!-- API Documentation Section -->
+      <section id="docs" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-book"></i>
+            <h2>API Documentation</h2>
+          </div>
+          <div class="section-actions">
+            <button id="refresh-docs" class="btn btn-outline">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div id="docs-container" class="docs-container">
+          <div class="empty-state">
+            <i class="fas fa-book"></i>
+            <p>Loading documentation...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- API Tester Section -->
+      <section id="tester" class="admin-section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-flask"></i>
+            <h2>API Tester</h2>
+          </div>
+        </div>
+        <div class="api-tester">
+          <div class="tester-form">
+            <div class="form-group">
+              <label for="test-endpoint">Select Endpoint</label>
+              <select id="test-endpoint" class="input-field">
+                <option value="">-- Choose an endpoint --</option>
+                <option value="post-build">POST /build - Create Build</option>
+                <option value="get-status">GET /api/builds/:id/status - Get Build Status</option>
+                <option value="get-logs">GET /api/builds/:id/logs - Get Build Logs</option>
+                <option value="get-builds">GET /api/builds - List Builds</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="test-param">Parameter (e.g., Build ID)</label>
+              <input type="text" id="test-param" class="input-field" placeholder="e.g., build-id-uuid">
+            </div>
+            <div class="form-group">
+              <label for="test-body">Request Body (JSON)</label>
+              <textarea id="test-body" class="input-field" placeholder='{"files":[]}' style="min-height: 150px; font-family: monospace;"></textarea>
+            </div>
+            <button id="test-send" class="btn btn-primary btn-block">
+              <i class="fas fa-paper-plane"></i> Send Request
+            </button>
+          </div>
+          <div class="tester-response">
+            <h3>Response</h3>
+            <div class="code-block">
+              <pre id="test-response">Ready to test...</pre>
+            </div>
+          </div>
         </div>
       </section>
     </main>

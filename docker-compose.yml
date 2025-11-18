@@ -21,7 +21,7 @@ services:
       - BUILD_TIMEOUT_MS=${BUILD_TIMEOUT_MS:-120000}
       - INSTALL_TIMEOUT_MS=${INSTALL_TIMEOUT_MS:-120000}
     # volumes: # Uncomment to bind local code during development
-    #  - ./:/app
+      - ./:/app
   redis:
     image: redis:7.0-alpine
     container_name: vite-json-redis

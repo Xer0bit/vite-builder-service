@@ -1,3 +1,4 @@
+// Fetch and render builds
 async function fetchBuilds(){
   const headers = window._adminKey ? { 'x-admin-key': window._adminKey } : {};
   const res = await fetch('/admin/builds', { headers });
@@ -25,9 +26,9 @@ async function fetchBuilds(){
         <span>Created: ${created}</span>
       </div>
       <div class="build-actions">
-        <a href="/builds/${b.id}.zip" class="btn btn-outline" style="font-size:0.75rem;">
+        ${b.status === 'completed' ? `<a href="/api/builds/${b.id}/download?adminKey=${encodeURIComponent(window._adminKey || '')}" class="btn btn-outline" style="font-size:0.75rem;">
           <i class="fas fa-download"></i> Download
-        </a>
+        </a>` : ''}
         <button data-id="${b.id}" class="show-logs btn btn-outline" style="font-size:0.75rem;">
           <i class="fas fa-file-alt"></i> Logs
         </button>
@@ -39,6 +40,7 @@ async function fetchBuilds(){
   }
 }
 
+// Fetch and render cache entries
 async function fetchCache(){
   const headers = window._adminKey ? { 'x-admin-key': window._adminKey } : {};
   const res = await fetch('/admin/cache', { headers });
@@ -102,6 +104,89 @@ async function fetchConfig() {
   document.getElementById('config-content').textContent = JSON.stringify(c, null, 2);
 }
 
+// Fetch and render API documentation
+async function fetchApiDocs() {
+  try {
+    const res = await fetch('/api/docs');
+    const docs = await res.json();
+    renderApiDocs(docs);
+  } catch (e) {
+    document.getElementById('docs-container').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load documentation</p></div>';
+  }
+}
+
+function renderApiDocs(docs) {
+  const container = document.getElementById('docs-container');
+  container.innerHTML = '';
+
+  // Overview section
+  const overviewDiv = document.createElement('div');
+  overviewDiv.className = 'doc-section';
+  overviewDiv.innerHTML = `
+    <h3><i class="fas fa-info-circle"></i> Overview</h3>
+    <p>${docs.description}</p>
+    <p><strong>Base URL:</strong> <code>${docs.baseUrl}</code></p>
+    <p><strong>Authentication:</strong> Include <code>${docs.authentication.header}</code> header with your API key</p>
+  `;
+  container.appendChild(overviewDiv);
+
+  // Endpoints
+  for (const endpoint of docs.endpoints) {
+    const methodClass = `doc-method-${endpoint.method.toLowerCase()}`;
+    const endpointDiv = document.createElement('div');
+    endpointDiv.className = 'doc-endpoint';
+
+    const header = document.createElement('div');
+    header.className = 'doc-endpoint-header';
+    header.innerHTML = `
+      <div>
+        <span class="doc-method ${methodClass}">${endpoint.method}</span>
+        <span class="doc-path">${endpoint.path}</span>
+      </div>
+      <i class="fas fa-chevron-down"></i>
+    `;
+    
+    const body = document.createElement('div');
+    body.className = 'doc-endpoint-body';
+
+    let content = `<h4>${endpoint.name}</h4><p>${endpoint.description}</p>`;
+
+    if (endpoint.queryParams) {
+      content += '<strong>Query Parameters:</strong><ul>';
+      for (const [key, desc] of Object.entries(endpoint.queryParams)) {
+        content += `<li><code>${key}</code> - ${desc}</li>`;
+      }
+      content += '</ul>';
+    }
+
+    if (endpoint.requestBody) {
+      content += '<strong>Request Body:</strong>';
+      content += `<div class="doc-code">${JSON.stringify(endpoint.requestBody.example, null, 2)}</div>`;
+    }
+
+    if (endpoint.response) {
+      content += '<strong>Response (Status ' + endpoint.response.status + '):</strong>';
+      content += `<div class="doc-code">${JSON.stringify(endpoint.response.body, null, 2)}</div>`;
+    }
+
+    content += `<strong>cURL Example:</strong><div class="curl-example">curl -X ${endpoint.method} "${docs.baseUrl}${endpoint.path}" \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: YOUR_API_KEY"${endpoint.requestBody ? ' \\' : ''}
+${endpoint.requestBody ? '  -d \'...\'' : ''}</div>`;
+
+    body.innerHTML = content;
+    
+    header.addEventListener('click', () => {
+      body.classList.toggle('show');
+      header.querySelector('i').style.transform = body.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+    });
+    
+    endpointDiv.appendChild(header);
+    endpointDiv.appendChild(body);
+    container.appendChild(endpointDiv);
+  }
+}
+
 function showLogsModal(buildId) {
   const modal = document.getElementById('log-modal');
   const logsEl = document.getElementById('modal-logs');
@@ -109,7 +194,6 @@ function showLogsModal(buildId) {
   modal.classList.add('show');
   modal.style.display = 'flex';
 
-  // Fetch logs
   const headers = window._adminKey ? { 'x-admin-key': window._adminKey } : {};
   fetch(`/admin/builds/${buildId}`, { headers })
     .then(r => r.json())
@@ -126,19 +210,10 @@ async function triggerTestBuild() {
   if (!apiKey) return;
 
   const samplePayload = {
-    "files": [
-      {
-        "path": "package.json",
-        "content": "{\"name\":\"test\",\"version\":\"1.0.0\",\"scripts\":{\"build\":\"vite build\"}}"
-      },
-      {
-        "path": "vite.config.js",
-        "content": "export default { build: { outDir: 'dist' } }"
-      },
-      {
-        "path": "index.html",
-        "content": "<!DOCTYPE html><html><body><h1>Test</h1></body></html>"
-      }
+    files: [
+      { path: 'package.json', content: '{"name":"test","version":"1.0.0","scripts":{"build":"vite build"}}' },
+      { path: 'vite.config.js', content: 'export default { build: { outDir: "dist" } }' },
+      { path: 'index.html', content: '<!DOCTYPE html><html><body><h1>Test</h1></body></html>' }
     ]
   };
 
@@ -150,8 +225,8 @@ async function triggerTestBuild() {
     });
     const data = await res.json();
     if (res.ok) {
-      alert(`Test build started. Build ID: ${data.id}`);
-      fetchBuilds(); // Refresh builds list
+      alert(`Test build started.\nBuild ID: ${data.id}\nStatus URL: ${data.statusUrl}`);
+      fetchBuilds();
     } else {
       alert('Failed to start test build: ' + (data.error || 'Unknown error'));
     }
@@ -160,16 +235,132 @@ async function triggerTestBuild() {
   }
 }
 
+async function testApiEndpoint() {
+  const endpoint = document.getElementById('test-endpoint').value;
+  const param = document.getElementById('test-param').value;
+  const bodyText = document.getElementById('test-body').value;
+  const responseEl = document.getElementById('test-response');
+
+  if (!endpoint) {
+    responseEl.textContent = 'Please select an endpoint';
+    return;
+  }
+
+  let url, method = 'GET', headers = { 'x-api-key': window._adminKey || '' };
+  let body = null;
+
+  try {
+    if (endpoint === 'post-build') {
+      url = '/build';
+      method = 'POST';
+      headers['Content-Type'] = 'application/json';
+      body = bodyText ? JSON.parse(bodyText) : { files: [] };
+    } else if (endpoint === 'get-status') {
+      url = `/api/builds/${param}/status`;
+    } else if (endpoint === 'get-logs') {
+      url = `/api/builds/${param}/logs`;
+    } else if (endpoint === 'get-builds') {
+      url = `/api/builds?limit=5`;
+    }
+
+    const options = { method, headers };
+    if (body) options.body = JSON.stringify(body);
+
+    const res = await fetch(url, options);
+    const data = await res.json();
+    responseEl.textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    responseEl.textContent = 'Error: ' + e.message;
+  }
+}
+
+let allKeys = [];
+
+async function fetchApiKeys(){
+  const showRevoked = document.getElementById('show-revoked').checked;
+  const url = '/admin/api/keys' + (showRevoked ? '?showRevoked=1' : '');
+  const r = await fetch(url, { headers: { 'x-admin-key': window._adminKey }});
+  if (!r.ok) {
+    document.getElementById('api-keys').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Unauthorized or error loading keys</p></div>';
+    return;
+  }
+  allKeys = await r.json();
+  renderKeys(allKeys);
+}
+
+function renderKeys(keys) {
+  const container = document.getElementById('api-keys');
+  container.innerHTML = '';
+  
+  if (keys.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-key"></i><p>No API keys created yet</p></div>';
+    return;
+  }
+  
+  const table = document.createElement('table');
+  const head = document.createElement('thead');
+  head.innerHTML = `<tr><th>ID</th><th>Created</th><th>Meta</th><th>Status</th><th>Actions</th></tr>`;
+  table.appendChild(head);
+  const tbody = document.createElement('tbody');
+  for (const k of keys) {
+    const tr = document.createElement('tr');
+    const created = (k.meta && k.meta.createdAt) ? new Date(k.meta.createdAt).toLocaleString() : '-';
+    const status = k.revoked ? 'revoked' : 'active';
+    const statusBadge = k.revoked ? '<span class="status-badge status-failed">Revoked</span>' : '<span class="status-badge status-completed">Active</span>';
+    tr.innerHTML = `<td><code>${k.id}</code></td><td>${created}</td><td><code style="font-size:0.75rem;">${JSON.stringify(k.meta||{})}</code></td><td>${statusBadge}</td><td></td>`;
+    const actions = tr.querySelector('td:last-child');
+    
+    const copyBtn = document.createElement('button');
+    copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+    copyBtn.className = 'btn btn-outline';
+    copyBtn.style.padding = '0.35rem 0.5rem';
+    copyBtn.style.fontSize = '0.75rem';
+    copyBtn.title = 'Copy ID';
+    copyBtn.addEventListener('click', ()=>{ navigator.clipboard.writeText(k.id); copyBtn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i>', 1500); });
+    
+    const showBtn = document.createElement('button');
+    showBtn.innerHTML = '<i class="fas fa-eye"></i>';
+    showBtn.className = 'btn btn-outline';
+    showBtn.style.padding = '0.35rem 0.5rem';
+    showBtn.style.fontSize = '0.75rem';
+    showBtn.title = 'Show Key';
+    showBtn.addEventListener('click', async ()=>{
+      const r = await fetch(`/admin/api/keys/${k.id}`, { headers: { 'x-admin-key': window._adminKey }});
+      if (!r.ok) { alert('Failed to fetch key'); return; }
+      const detail = await r.json();
+      alert('Key: ' + detail.key + '\nID: ' + detail.id + '\nRevoked: ' + detail.revoked);
+    });
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = '<i class="fas fa-ban"></i>';
+    deleteBtn.className = 'btn btn-danger';
+    deleteBtn.style.padding = '0.35rem 0.5rem';
+    deleteBtn.style.fontSize = '0.75rem';
+    deleteBtn.title = 'Revoke Key';
+    deleteBtn.addEventListener('click', async ()=>{
+      if (!confirm('Revoke key ' + k.id + '?')) return;
+      await fetch(`/admin/api/keys/${k.id}`, { method: 'DELETE', headers: { 'x-admin-key': window._adminKey }});
+      fetchApiKeys();
+    });
+    
+    actions.appendChild(copyBtn);
+    actions.appendChild(showBtn);
+    actions.appendChild(deleteBtn);
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
 window.onload = function(){
-  // prompt for admin key
   const adminKey = prompt('Enter admin key (required to manage cache and view logs):');
   window._adminKey = adminKey;
   fetchBuilds();
   fetchCache();
   fetchMetrics();
   fetchConfig();
+  fetchApiDocs();
 
-  // Modal close
   const modal = document.getElementById('log-modal');
   document.querySelector('.close').addEventListener('click', () => {
     modal.classList.remove('show');
@@ -183,27 +374,24 @@ window.onload = function(){
     }
   });
 
-  // Test build
   document.getElementById('test-build').addEventListener('click', triggerTestBuild);
-
-  // Refresh buttons
   document.getElementById('refresh-builds').addEventListener('click', fetchBuilds);
   document.getElementById('refresh-cache').addEventListener('click', fetchCache);
   document.getElementById('refresh-metrics').addEventListener('click', fetchMetrics);
   document.getElementById('refresh-config').addEventListener('click', fetchConfig);
+  document.getElementById('refresh-docs').addEventListener('click', fetchApiDocs);
   document.getElementById('refresh-keys').addEventListener('click', fetchApiKeys);
+  document.getElementById('test-send').addEventListener('click', testApiEndpoint);
 
   document.getElementById('clear-cache').addEventListener('click', async ()=>{
-    if (!confirm('Are you sure you want to clear the entire cache? This will remove all cached dependencies.')) return;
+    if (!confirm('Clear entire cache?')) return;
     await fetch('/admin/cache/clear', {method: 'POST', headers: { 'x-admin-key': window._adminKey }});
     fetchCache();
   });
 
-  // auto refresh
-  setInterval(()=>{ fetchBuilds(); fetchCache(); }, 10000); // slower
+  setInterval(()=>{ fetchBuilds(); fetchCache(); }, 10000);
   setInterval(()=>{ fetchMetrics(); }, 10000);
 
-  // cache settings
   document.getElementById('save-cache-settings').addEventListener('click', async ()=>{
     const maxEntries = parseInt(document.getElementById('cache-max-entries').value || '5', 10);
     const maxBytes = parseInt(document.getElementById('cache-max-bytes').value || (2 * 1024 * 1024 * 1024), 10);
@@ -211,92 +399,13 @@ window.onload = function(){
     fetchCache();
   });
 
-  // API Keys
   document.getElementById('create-key').addEventListener('click', async ()=>{
     const r = await fetch('/admin/api/keys', { method: 'POST', headers: { 'x-admin-key': window._adminKey } });
     const data = await r.json();
-    alert(`Created key id: ${data.id}\nkey: ${data.key}`);
+    alert(`Created key\nID: ${data.id}\nKey: ${data.key}\n\nSave this key securely!`);
     fetchApiKeys();
   });
 
-  let allKeys = [];
-  async function fetchApiKeys(){
-    const showRevoked = document.getElementById('show-revoked').checked;
-    const url = '/admin/api/keys' + (showRevoked ? '?showRevoked=1' : '');
-    const r = await fetch(url, { headers: { 'x-admin-key': window._adminKey }});
-    if (!r.ok) {
-      document.getElementById('api-keys').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Unauthorized or error loading keys</p></div>';
-      return;
-    }
-    allKeys = await r.json();
-    renderKeys(allKeys);
-  }
-
-  function renderKeys(keys) {
-    const container = document.getElementById('api-keys');
-    container.innerHTML = '';
-    
-    if (keys.length === 0) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-key"></i><p>No API keys created yet</p></div>';
-      return;
-    }
-    
-    const table = document.createElement('table');
-    const head = document.createElement('thead');
-    head.innerHTML = `<tr><th>ID</th><th>Created</th><th>Meta</th><th>Status</th><th>Actions</th></tr>`;
-    table.appendChild(head);
-    const tbody = document.createElement('tbody');
-    for (const k of keys) {
-      const tr = document.createElement('tr');
-      const created = (k.meta && k.meta.createdAt) ? new Date(k.meta.createdAt).toLocaleString() : '-';
-      const status = k.revoked ? 'revoked' : 'active';
-      const statusBadge = k.revoked ? '<span class="status-badge status-failed">Revoked</span>' : '<span class="status-badge status-completed">Active</span>';
-      tr.innerHTML = `<td><code>${k.id}</code></td><td>${created}</td><td><code style="font-size:0.75rem;">${JSON.stringify(k.meta||{})}</code></td><td>${statusBadge}</td><td></td>`;
-      const actions = tr.querySelector('td:last-child');
-      
-      const copyBtn = document.createElement('button');
-      copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-      copyBtn.className = 'btn btn-outline';
-      copyBtn.style.padding = '0.35rem 0.5rem';
-      copyBtn.style.fontSize = '0.75rem';
-      copyBtn.title = 'Copy ID';
-      copyBtn.addEventListener('click', ()=>{ navigator.clipboard.writeText(k.id); copyBtn.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i>', 1500); });
-      
-      const showBtn = document.createElement('button');
-      showBtn.innerHTML = '<i class="fas fa-eye"></i>';
-      showBtn.className = 'btn btn-outline';
-      showBtn.style.padding = '0.35rem 0.5rem';
-      showBtn.style.fontSize = '0.75rem';
-      showBtn.title = 'Show Key';
-      showBtn.addEventListener('click', async ()=>{
-        const r = await fetch(`/admin/api/keys/${k.id}`, { headers: { 'x-admin-key': window._adminKey }});
-        if (!r.ok) { alert('Failed to fetch key'); return; }
-        const detail = await r.json();
-        alert('Key: ' + detail.key + '\nID: ' + detail.id + '\nRevoked: ' + detail.revoked);
-      });
-      
-      const deleteBtn = document.createElement('button');
-      deleteBtn.innerHTML = '<i class="fas fa-ban"></i>';
-      deleteBtn.className = 'btn btn-danger';
-      deleteBtn.style.padding = '0.35rem 0.5rem';
-      deleteBtn.style.fontSize = '0.75rem';
-      deleteBtn.title = 'Revoke Key';
-      deleteBtn.addEventListener('click', async ()=>{
-        if (!confirm('Revoke key ' + k.id + '?')) return;
-        await fetch(`/admin/api/keys/${k.id}`, { method: 'DELETE', headers: { 'x-admin-key': window._adminKey }});
-        fetchApiKeys();
-      });
-      
-      actions.appendChild(copyBtn);
-      actions.appendChild(showBtn);
-      actions.appendChild(deleteBtn);
-      tbody.appendChild(tr);
-    }
-    table.appendChild(tbody);
-    container.appendChild(table);
-  }
-
-  // Search keys
   document.getElementById('search-keys').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     const filtered = allKeys.filter(k => k.id.toLowerCase().includes(query));
